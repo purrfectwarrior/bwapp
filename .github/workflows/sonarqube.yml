@@ -61,12 +61,12 @@ jobs:
     - name: Prepare Compilation Database
       run: |
         # Si tu proyecto usa Makefile
-        make clean
-        ./build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir bw-output make
+        #make clean
+        #./build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir bw-output make
 
         # Si no tienes Makefile, sustituye con comandos de compilación de tu proyecto
         # Ejemplo para un proyecto PHP/web:
-        # ./build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir bw-output composer install
+         ./build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir bw-output composer install
 
     - name: SonarQube Scan
       uses: sonarsource/sonarqube-scan-action@master
