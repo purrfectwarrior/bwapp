@@ -50,5 +50,5 @@ jobs:
       with:
         projectBaseDir: .
         args: >
-          -Dsonar.projectKey=purrfectwarrior/bwapp
+          -Dsonar.projectKey=bwapp
           -Dsonar.organization=purrfectwarrior
