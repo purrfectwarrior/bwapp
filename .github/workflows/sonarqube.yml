@@ -23,25 +23,51 @@
 
 # Feel free to take a look at our documentation (https://docs.sonarqube.org/latest/analysis/github-integration/)
 # or reach out to our community forum if you need some help (https://community.sonarsource.com/c/sq/10)
-name: SonarQube analysis
+name: SonarQube Comprehensive Scan
 
 on:
   push:
-    branches: [ "master" ]
+    branches:
+      - master
   pull_request:
-    branches: [ "master" ]
-  
+    types: [opened, synchronize, reopened]
+
 jobs:
-  sonarqube-scan:
+  sonarqube:
+    name: SonarQube Scan
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    
-    - name: Setup PHP
-      uses: shivammathur/setup-php@v2
       with:
-        php-version: '7.4'
-    
+        fetch-depth: 0
+
+    - name: Set up JDK
+      uses: actions/setup-java@v3
+      with:
+        java-version: 17
+        distribution: 'zulu'
+
+    - name: Install dependencies
+      run: |
+        # Instalar dependencias necesarias
+        sudo apt-get update
+        sudo apt-get install -y build-essential wget unzip
+
+    - name: Download Build Wrapper
+      run: |
+        wget https://sonarcloud.io/static/cpp/build-wrapper-linux-x86.zip
+        unzip build-wrapper-linux-x86.zip
+
+    - name: Prepare Compilation Database
+      run: |
+        # Si tu proyecto usa Makefile
+        make clean
+        ./build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir bw-output make
+
+        # Si no tienes Makefile, sustituye con comandos de compilación de tu proyecto
+        # Ejemplo para un proyecto PHP/web:
+        # ./build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir bw-output composer install
+
     - name: SonarQube Scan
       uses: sonarsource/sonarqube-scan-action@master
       env:
@@ -52,3 +78,6 @@ jobs:
         args: >
           -Dsonar.projectKey=bwapp
           -Dsonar.organization=purrfectwarrior
+          -Dsonar.cfamily.compile-commands=bw-output/compile_commands.json
+          -Dsonar.c.file.suffixes=-
+          -Dsonar.cpp.file.suffixes=-
