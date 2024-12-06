@@ -34,53 +34,15 @@ on:
 
 jobs:
   sonarqube:
-    name: SonarQube Security Scan
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v3
-      with:
-        fetch-depth: 0
-
-    - name: Set up PHP
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: '7.4'
-
-    - name: Set up Java
-      uses: actions/setup-java@v3
-      with:
-        java-version: 17
-        distribution: 'zulu'
-
-    - name: Install SonarQube Scanner
-      run: |
-        wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.7.0.2747-linux.zip
-        unzip sonar-scanner-cli-4.7.0.2747-linux.zip
-
-    - name: Prepare Build Wrapper
-      run: |
-        wget https://sonarcloud.io/static/cpp/build-wrapper-linux-x86.zip
-        unzip build-wrapper-linux-x86.zip
-
-    - name: Simulate Build Process
-      run: |
-        # Simular proceso de construcción para PHP
-        mkdir -p bw-output
-        ./build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir bw-output php -v
-
-    - name: SonarQube Scan
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      run: |
-        ./sonar-scanner-4.7.0.2747-linux/bin/sonar-scanner \
-          -Dsonar.projectKey=bwapp \
-          -Dsonar.organization=purrfectwarrior \
-          -Dsonar.sources=. \
-          -Dsonar.host.url=https://sonarcloud.io \
-          -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
-          -Dsonar.php.coverage.reportPaths=coverage.xml \
-          -Dsonar.exclusions=**/vendor/**,**/tests/**,**/*.min.js \
-          -Dsonar.c.file.suffixes=- \
-          -Dsonar.cpp.file.suffixes=- \
-          -Dsonar.objc.file.suffixes=-
+    name: SonarQube Cloud Scan
+    uses: SonarSource/sonarcloud-github-action@v4.0.0
+    with:
+      # Optional arguments to the Sonar Scanner CLI
+      args: # optional, for custom analysis commands
+      # Set the sonar.projectBaseDir analysis property
+      projectBaseDir: # optional, specify the base directory for analysis
+      # Version of the Sonar Scanner CLI to use
+      scannerVersion: # optional, default is 6.2.1.4610
+      # URL to download the Sonar Scanner CLI binaries from
+      scannerBinariesUrl: # optional, default is https://binaries.sonarsource.com/Distribution/sonar-scanner-cli
+          
