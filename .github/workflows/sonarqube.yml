@@ -23,7 +23,7 @@
 
 # Feel free to take a look at our documentation (https://docs.sonarqube.org/latest/analysis/github-integration/)
 # or reach out to our community forum if you need some help (https://community.sonarsource.com/c/sq/10)
-name: SonarQube Comprehensive Scan
+name: BWAPP Security Scan
 
 on:
   push:
@@ -34,50 +34,53 @@ on:
 
 jobs:
   sonarqube:
-    name: SonarQube Scan
+    name: SonarQube Security Scan
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
       with:
         fetch-depth: 0
 
-    - name: Set up JDK
+    - name: Set up PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '7.4'
+
+    - name: Set up Java
       uses: actions/setup-java@v3
       with:
         java-version: 17
         distribution: 'zulu'
 
-    - name: Install dependencies
+    - name: Install SonarQube Scanner
       run: |
-        # Instalar dependencias necesarias
-        sudo apt-get update
-        sudo apt-get install -y build-essential wget unzip
+        wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.7.0.2747-linux.zip
+        unzip sonar-scanner-cli-4.7.0.2747-linux.zip
 
-    - name: Download Build Wrapper
+    - name: Prepare Build Wrapper
       run: |
         wget https://sonarcloud.io/static/cpp/build-wrapper-linux-x86.zip
         unzip build-wrapper-linux-x86.zip
 
-    - name: Prepare Compilation Database
+    - name: Simulate Build Process
       run: |
-        # Si tu proyecto usa Makefile
-        #make clean
-        #./build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir bw-output make
-
-        # Si no tienes Makefile, sustituye con comandos de compilación de tu proyecto
-        # Ejemplo para un proyecto PHP/web:
-         ./build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir bw-output composer install
+        # Simular proceso de construcción para PHP
+        mkdir -p bw-output
+        ./build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir bw-output php -v
 
     - name: SonarQube Scan
-      uses: sonarsource/sonarqube-scan-action@master
       env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-      with:
-        projectBaseDir: .
-        args: >
-          -Dsonar.projectKey=bwapp
-          -Dsonar.organization=purrfectwarrior
-          -Dsonar.cfamily.compile-commands=bw-output/compile_commands.json
-          -Dsonar.c.file.suffixes=-
-          -Dsonar.cpp.file.suffixes=-
+      run: |
+        ./sonar-scanner-4.7.0.2747-linux/bin/sonar-scanner \
+          -Dsonar.projectKey=bwapp \
+          -Dsonar.organization=purrfectwarrior \
+          -Dsonar.sources=. \
+          -Dsonar.host.url=https://sonarcloud.io \
+          -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
+          -Dsonar.php.coverage.reportPaths=coverage.xml \
+          -Dsonar.exclusions=**/vendor/**,**/tests/**,**/*.min.js \
+          -Dsonar.c.file.suffixes=- \
+          -Dsonar.cpp.file.suffixes=- \
+          -Dsonar.objc.file.suffixes=-
