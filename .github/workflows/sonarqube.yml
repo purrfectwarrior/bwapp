@@ -26,23 +26,25 @@
 name: BWAPP Security Scan
 
 on:
+  # Trigger analysis when pushing to your main branches, and when creating a pull request.
   push:
     branches:
+      - main
       - master
+      - develop
+      - 'releases/**'
   pull_request:
-    types: [opened, synchronize, reopened]
+      types: [opened, synchronize, reopened]
 
 jobs:
   sonarqube:
-    name: SonarQube Cloud Scan
-    uses: SonarSource/sonarcloud-github-action@v4.0.0
-    with:
-      # Optional arguments to the Sonar Scanner CLI
-      args: # optional, for custom analysis commands
-      # Set the sonar.projectBaseDir analysis property
-      projectBaseDir: # optional, specify the base directory for analysis
-      # Version of the Sonar Scanner CLI to use
-      scannerVersion: # optional, default is 6.2.1.4610
-      # URL to download the Sonar Scanner CLI binaries from
-      scannerBinariesUrl: # optional, default is https://binaries.sonarsource.com/Distribution/sonar-scanner-cli
-          
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        # Disabling shallow clones is recommended for improving the relevancy of reporting
+        fetch-depth: 0
+    - name: SonarQube Scan
+      uses: sonarsource/sonarcloud-github-action@<action version> # Ex: v4.0.0, See the latest version at https://github.com/marketplace/actions/sonarcloud-scan
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
