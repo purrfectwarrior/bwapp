@@ -49,14 +49,7 @@ jobs:
       env:
         
         # Inherit project and organization from environment variables
-        SONAR_PROJECT_KEY: ${{ env.SONAR_PROJECT_KEY }}
-        SONAR_ORGANIZATION: ${{ env.SONAR_ORGANIZATION }}
+        SONAR_PROJECT_KEY: purrfectwarrior_bwapp
+        SONAR_ORGANIZATION: purrfectwarrior
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        args: >
-          -Dsonar.organization=purrfectwarrior
-          -Dsonar.projectKey=purrfectwarrior_bwapp
-          -Dsonar.python.coverage.reportPaths=coverage.xml
-          -Dsonar.sources=lib/
-          -Dsonar.tests=tests/
-          -Dsonar.test.exclusions=tests/**
-          -Dsonar.verbose=true
+        
