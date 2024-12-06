@@ -31,11 +31,7 @@ on:
     branches: [ "master" ]
   pull_request:
     branches: [ "master" ]
-  workflow_dispatch:
-
-permissions:
-  pull-requests: read # allows SonarQube to decorate PRs with analysis results
-
+  
 jobs:
   sonarqube-scan:
     runs-on: ubuntu-latest
